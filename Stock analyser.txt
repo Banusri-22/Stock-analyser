@@ -1,0 +1,97 @@
+"""
+Stock Price Analyzer
+Author: Your Name
+Description:
+A Python program to fetch stock prices, calculate moving average,
+detect trend, and visualize results.
+"""
+
+import yfinance as yf
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+def load_stock_data(ticker, start="2022-01-01", end="2024-01-01"):
+    """
+    Fetch stock data from Yahoo Finance
+    """
+    print("Downloading data...")
+    data = yf.download(ticker, start=start, end=end)
+
+    if data.empty:
+        print("Invalid ticker symbol")
+        return None
+
+    return data
+
+
+def calculate_moving_average(data, window=20):
+    """
+    Calculate moving average
+    """
+    data["Moving_Avg"] = data["Close"].rolling(window=window).mean()
+    return data
+
+
+def detect_trend(data):
+    """
+    Detect stock trend
+    """
+    if data["Close"].iloc[-1] > data["Moving_Avg"].iloc[-1]:
+        return "Uptrend 📈"
+    else:
+        return "Downtrend 📉"
+
+
+def show_statistics(data):
+    """
+    Display basic statistics
+    """
+    print("\nStock Statistics")
+    print("----------------")
+    print("Highest Price:", round(data["High"].max(), 2))
+    print("Lowest Price:", round(data["Low"].min(), 2))
+    print("Average Close Price:", round(data["Close"].mean(), 2))
+
+
+def plot_stock(data, ticker):
+    """
+    Plot stock price graph
+    """
+    plt.figure()
+
+    plt.plot(data["Close"], label="Close Price")
+    plt.plot(data["Moving_Avg"], label="Moving Average (20 days)")
+
+    plt.title(f"{ticker} Stock Price Analysis")
+    plt.xlabel("Date")
+    plt.ylabel("Price")
+
+    plt.legend()
+
+    plt.show()
+
+
+def main():
+    print("==== Stock Price Analyzer ====\n")
+
+    ticker = input("Enter stock ticker (Example: AAPL, TSLA, MSFT): ")
+
+    data = load_stock_data(ticker)
+
+    if data is None:
+        return
+
+    data = calculate_moving_average(data)
+
+    trend = detect_trend(data)
+
+    show_statistics(data)
+
+    print("\nCurrent Trend:", trend)
+
+    plot_stock(data, ticker)
+
+
+if __name__ == "__main__":
+    main()
